@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nゲージ計算ツール｜縮尺換算・勾配・編成長をスマホで計算</title>
+  <meta name="description" content="Nゲージ・HOゲージの計算をスマホで。実物サイズ→模型サイズの縮尺換算、勾配計算、車両編成長・ホーム長計算、カーブ半径換算に対応。レイアウト設計に。">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background: #f0f4f8;
+      color: #1a2a3a;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    header {
+      background: linear-gradient(135deg, #1a2a3a 0%, #2d4a6a 100%);
+      color: #b8d4f0;
+      padding: 24px 16px;
+      text-align: center;
+    }
+    .header-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    header h1 { font-size: 1.3rem; font-weight: bold; color: #e8f4ff; }
+    header p { font-size: 0.82rem; opacity: 0.8; margin-top: 4px; }
+
+    .ad-slot {
+      background: #e0e8f0;
+      border: 1px dashed #8ab0d0;
+      text-align: center; padding: 12px;
+      margin: 12px 16px; color: #6090b0;
+      font-size: 0.8rem; min-height: 90px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ad-slot-rect { min-height: 250px; }
+
+    .container { max-width: 640px; margin: 0 auto; padding: 0 16px 40px; }
+
+    .tabs {
+      display: flex; margin: 16px 0 0;
+      border-bottom: 2px solid #2d4a6a;
+    }
+    .tab {
+      flex: 1; padding: 9px 2px;
+      text-align: center; font-size: 0.75rem;
+      cursor: pointer; background: #fff;
+      border: 1px solid #b0c8e0; border-bottom: none;
+      color: #4a7090; transition: all 0.2s;
+    }
+    .tab.active {
+      background: #2d4a6a; color: #e8f4ff;
+      font-weight: bold; border-color: #2d4a6a;
+    }
+    .panel {
+      display: none; background: white;
+      border: 1px solid #b0c8e0; border-top: none;
+      padding: 20px 16px; border-radius: 0 0 8px 8px;
+    }
+    .panel.active { display: block; }
+
+    .panel-title { font-size: 0.95rem; font-weight: bold; color: #1a3a5a; margin-bottom: 4px; }
+    .panel-desc { font-size: 0.8rem; color: #6090b0; margin-bottom: 16px; }
+    .sec-label {
+      font-size: 0.75rem; font-weight: bold; color: #2d6090;
+      border-left: 3px solid #2d6090; padding-left: 8px; margin-bottom: 12px;
+    }
+
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.82rem; font-weight: bold; margin-bottom: 5px; color: #1a3a5a; }
+    .label-sub { font-weight: normal; color: #6090b0; font-size: 0.75rem; }
+
+    .input-row { display: flex; align-items: center; gap: 8px; }
+    input[type="number"], select {
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid #b0c8e0; border-radius: 6px;
+      font-size: 1rem; background: #f8fbff; color: #1a2a3a;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus { outline: none; border-color: #2d6090; }
+    .unit { white-space: nowrap; color: #4a7090; font-size: 0.88rem; min-width: 40px; }
+    .divider { border: none; border-top: 1px solid #e0e8f0; margin: 14px 0; }
+
+    .calc-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #2d4a6a, #1a3a8a);
+      color: #e8f4ff; border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: bold; cursor: pointer;
+      box-shadow: 0 3px 8px rgba(45,74,106,0.3);
+      letter-spacing: 0.05em;
+    }
+    .calc-btn:active { opacity: 0.85; }
+
+    .result-box {
+      display: none; background: #1a2a3a;
+      border-radius: 10px; padding: 18px;
+      margin-top: 16px; color: #e8f4ff;
+    }
+    .result-box.show { display: block; }
+    .result-title { font-size: 0.78rem; color: #8ab0d0; text-align: center; margin-bottom: 12px; letter-spacing: 0.1em; }
+    .result-big { text-align: center; margin-bottom: 14px; }
+    .result-num { font-size: 2.8rem; font-weight: bold; color: #e8f4ff; }
+    .result-unit-big { font-size: 1rem; color: #8ab0d0; }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .result-card { background: rgba(255,255,255,0.08); border-radius: 8px; padding: 10px; text-align: center; }
+    .rc-label { font-size: 0.72rem; color: #8ab0d0; margin-bottom: 4px; }
+    .rc-value { font-size: 1.3rem; font-weight: bold; color: #e8f4ff; }
+    .rc-unit { font-size: 0.72rem; color: #8ab0d0; }
+    .result-note { font-size: 0.72rem; color: #6090b0; text-align: center; margin-top: 10px; }
+    .result-tip {
+      background: rgba(138,176,208,0.15); border-left: 3px solid #8ab0d0;
+      border-radius: 0 6px 6px 0; padding: 8px 12px;
+      margin-top: 10px; font-size: 0.78rem; color: #b8d4f0;
+    }
+
+    .howto { background: white; border: 1px solid #b0c8e0; border-radius: 8px; padding: 16px; margin-top: 16px; }
+    .howto h2 { font-size: 0.95rem; color: #2d4a6a; margin-bottom: 10px; }
+    .howto li { font-size: 0.82rem; color: #555; line-height: 1.7; margin-left: 1.2em; }
+
+    .faq-box { background: #f8fbff; border: 1px solid #b0c8e0; border-radius: 8px; padding: 20px; margin-top: 16px; }
+    .faq-box h2 { font-size: 1rem; color: #1a3a5a; margin-bottom: 16px; }
+    .faq-q { font-weight: bold; color: #2d6090; font-size: 0.9rem; margin-bottom: 6px; }
+    .faq-a { font-size: 0.82rem; color: #555; line-height: 1.7; margin-bottom: 16px; }
+
+    footer {
+      background: #1a2a3a; color: #6090b0;
+      text-align: center; padding: 20px;
+      font-size: 0.75rem; margin-top: 32px;
+    }
+    footer a { color: #8ab0d0; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-icon">🚂</div>
+  <h1>Nゲージ計算ツール</h1>
+  <p>縮尺換算・勾配・編成長・カーブをスマホで計算</p>
+</header>
+
+<div style="max-width:640px; margin:0 auto;">
+  <div class="ad-slot"><!-- AdSense -->広告</div>
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">縮尺換算</div>
+    <div class="tab" onclick="switchTab(1)">勾配計算</div>
+    <div class="tab" onclick="switchTab(2)">編成長</div>
+    <div class="tab" onclick="switchTab(3)">カーブ半径</div>
+  </div>
+
+  <!-- パネル1：縮尺換算 -->
+  <div class="panel active" id="panel0">
+    <div class="panel-title">縮尺換算（実物サイズ → 模型サイズ）</div>
+    <div class="panel-desc">実物の寸法を入力すると模型での寸法が計算できます</div>
+
+    <div class="form-group">
+      <label>スケール</label>
+      <select id="p1_scale">
+        <option value="150">Nゲージ（1/150）</option>
+        <option value="160">Nゲージ欧米型（1/160）</option>
+        <option value="80">HOゲージ（1/80）</option>
+        <option value="87">HOゲージ欧米型（1/87）</option>
+        <option value="220">Zゲージ（1/220）</option>
+        <option value="45">Oゲージ（1/45）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>実物の寸法</label>
+      <div class="input-row">
+        <input type="number" id="p1_real" placeholder="例：20000" min="1">
+        <select id="p1_unit" style="max-width:80px; flex:0 0 80px;">
+          <option value="1">mm</option>
+          <option value="10">cm</option>
+          <option value="1000" selected>m</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calcScale()">🚂 模型サイズを計算する</button>
+
+    <div class="result-box" id="p1_result">
+      <div class="result-title">模型での寸法</div>
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="rc-label">mm換算</div>
+          <div class="rc-value" id="p1_mm">-</div>
+          <div class="rc-unit">mm</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">cm換算</div>
+          <div class="rc-value" id="p1_cm">-</div>
+          <div class="rc-unit">cm</div>
+        </div>
+      </div>
+      <div class="result-note" id="p1_note">-</div>
+    </div>
+  </div>
+
+  <!-- パネル2：勾配計算 -->
+  <div class="panel" id="panel1">
+    <div class="panel-title">勾配計算</div>
+    <div class="panel-desc">高低差と水平距離から勾配（パーミル・パーセント）を計算します</div>
+
+    <div class="form-group">
+      <label>高低差</label>
+      <div class="input-row">
+        <input type="number" id="p2_height" placeholder="例：30" min="0.1" step="0.1">
+        <span class="unit">mm</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>水平距離（線路の長さ）</label>
+      <div class="input-row">
+        <input type="number" id="p2_dist" placeholder="例：600" min="1">
+        <span class="unit">mm</span>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calcGradient()">📐 勾配を計算する</button>
+
+    <div class="result-box" id="p2_result">
+      <div class="result-title">勾配</div>
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="rc-label">パーミル（‰）</div>
+          <div class="rc-value" id="p2_permil">-</div>
+          <div class="rc-unit">‰</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">パーセント（%）</div>
+          <div class="rc-value" id="p2_percent">-</div>
+          <div class="rc-unit">%</div>
+        </div>
+      </div>
+      <div class="result-tip" id="p2_tip">-</div>
+      <div class="result-note">※Nゲージの走行に支障のない勾配は一般的に50‰（5%）以下が目安です</div>
+    </div>
+  </div>
+
+  <!-- パネル3：編成長 -->
+  <div class="panel" id="panel2">
+    <div class="panel-title">車両編成長・ホーム長計算</div>
+    <div class="panel-desc">車両数と1両の長さから編成の全長とホームの必要長さを計算します</div>
+
+    <div class="form-group">
+      <label>車両の種類</label>
+      <select id="p3_car_type" onchange="updateCarLength()">
+        <option value="165">通勤電車・近郊型（165mm）</option>
+        <option value="158">特急・新幹線短（158mm）</option>
+        <option value="167">新幹線（167mm）</option>
+        <option value="140">路面電車（140mm）</option>
+        <option value="custom">その他（長さを入力）</option>
+      </select>
+    </div>
+
+    <div class="form-group" id="p3_custom_wrap" style="display:none;">
+      <label>1両の長さ</label>
+      <div class="input-row">
+        <input type="number" id="p3_car_length" placeholder="例：165" min="1">
+        <span class="unit">mm</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>車両数</label>
+      <div class="input-row">
+        <input type="number" id="p3_cars" placeholder="例：10" min="1" max="50">
+        <span class="unit">両</span>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calcFormation()">🚃 編成長を計算する</button>
+
+    <div class="result-box" id="p3_result">
+      <div class="result-title">編成長・必要ホーム長</div>
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="rc-label">編成全長</div>
+          <div class="rc-value" id="p3_total">-</div>
+          <div class="rc-unit">mm</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">推奨ホーム長</div>
+          <div class="rc-value" id="p3_platform">-</div>
+          <div class="rc-unit">mm</div>
+        </div>
+      </div>
+      <div class="result-note" id="p3_note">-</div>
+    </div>
+  </div>
+
+  <!-- パネル4：カーブ半径 -->
+  <div class="panel" id="panel3">
+    <div class="panel-title">カーブ半径の参考情報</div>
+    <div class="panel-desc">TOMIXやKATOのカーブレール規格の実寸を確認できます</div>
+
+    <div class="form-group">
+      <label>メーカー</label>
+      <select id="p4_maker" onchange="updateCurveInfo()">
+        <option value="tomix">TOMIX</option>
+        <option value="kato">KATO</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>カーブレール型番</label>
+      <select id="p4_curve" onchange="showCurveResult()">
+        <option value="">選んでください</option>
+      </select>
+    </div>
+
+    <div class="result-box" id="p4_result">
+      <div class="result-title">カーブ半径情報</div>
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="rc-label">半径</div>
+          <div class="rc-value" id="p4_radius">-</div>
+          <div class="rc-unit">mm</div>
+        </div>
+        <div class="result-card">
+          <div class="rc-label">実物換算（1/150）</div>
+          <div class="rc-value" id="p4_real">-</div>
+          <div class="rc-unit">m</div>
+        </div>
+      </div>
+      <div class="result-tip" id="p4_tip">-</div>
+    </div>
+  </div>
+
+  <!-- 使い方 -->
+  <div class="howto">
+    <h2>🔧 計算の使い方</h2>
+    <ul>
+      <li>縮尺換算：実物の長さを入力するだけでNゲージサイズが出ます</li>
+      <li>勾配：高低差÷水平距離で計算。50‰以下が走行の目安</li>
+      <li>編成長：車両数を変えるだけで全長とホーム長が出ます</li>
+      <li>カーブ：メーカーと型番を選ぶだけで半径と実物換算が確認できます</li>
+    </ul>
+  </div>
+
+  <!-- よくある質問 -->
+  <div class="faq-box">
+    <h2>よくある質問</h2>
+
+    <p class="faq-q">Q. Nゲージの縮尺は何分の1？</p>
+    <p class="faq-a">A. 日本のNゲージは1/150スケールです（欧米型は1/160）。実物20mの車両はNゲージでは約133mmになります。このツールの「縮尺換算」タブで計算できます。</p>
+
+    <p class="faq-q">Q. Nゲージのレイアウトで許容できる勾配は？</p>
+    <p class="faq-a">A. 一般的に50‰（5%）以下が目安です。勾配が急すぎると車両が登れなかったり、下りで速度が出すぎる場合があります。「勾配計算」タブで高低差と距離を入力して確認できます。</p>
+
+    <p class="faq-q">Q. 10両編成に必要なホーム長は？</p>
+    <p class="faq-a">A. 通勤電車（165mm/両）の10両編成なら約1650mm、余裕を持って1700mm以上が目安です。「編成長」タブで車両数を入力すると自動で計算できます。</p>
+
+    <p class="faq-q">Q. TOMIXのC280とC317の違いは？</p>
+    <p class="faq-a" style="margin-bottom:0;">A. C280は半径280mm、C317は半径317mmのカーブレールです。半径が大きいほどゆるやかなカーブになり、長い車両でも通過しやすくなります。「カーブ半径」タブで各規格の詳細を確認できます。</p>
+  </div>
+
+</div>
+
+<div style="max-width:640px; margin:0 auto; padding:0 16px;">
+  <div class="ad-slot ad-slot-rect"><!-- AdSense -->広告</div>
+</div>
+
+<footer>
+  <p>Nゲージ計算ツール | 縮尺換算・勾配・編成長・カーブ半径を計算</p>
+  <p style="margin-top:4px;">© 2026 Nゲージ計算ツール | <a href="privacy.html">プライバシーポリシー</a></p>
+</footer>
+
+<script>
+  const CURVES = {
+    tomix: [
+      { name:'C140（最小）', r:140, tip:'路面電車・小型車両向け。大型車両は通過不可' },
+      { name:'C177', r:177, tip:'小型レイアウト向け。小型車両推奨' },
+      { name:'C243', r:243, tip:'標準的な小半径。4両以下の短編成向け' },
+      { name:'C280', r:280, tip:'最もポピュラーなカーブ。多くの車両が対応' },
+      { name:'C317', r:317, tip:'ゆるやかなカーブ。長編成・特急も走行可能' },
+      { name:'C391', r:391, tip:'大半径。長編成でもスムーズに走行' },
+      { name:'C541', r:541, tip:'超大半径。新幹線車両に対応' },
+      { name:'C605', r:605, tip:'最大半径クラス。最もリアルな走行が楽しめる' },
+    ],
+    kato: [
+      { name:'R150（最小）', r:150, tip:'路面電車・小型車両専用' },
+      { name:'R216', r:216, tip:'小型レイアウト向け' },
+      { name:'R249', r:249, tip:'標準小半径' },
+      { name:'R282', r:282, tip:'ポピュラーなカーブ半径' },
+      { name:'R315', r:315, tip:'多くの車両が走行可能' },
+      { name:'R348', r:348, tip:'ゆるやか。長編成向け' },
+      { name:'R381', r:381, tip:'大半径。特急・長編成向け' },
+      { name:'R414', r:414, tip:'超大半径' },
+    ]
+  };
+
+  function switchTab(i) {
+    document.querySelectorAll('.tab').forEach((t,idx) => t.classList.toggle('active', idx===i));
+    document.querySelectorAll('.panel').forEach((p,idx) => p.classList.toggle('active', idx===i));
+  }
+
+  function calcScale() {
+    const scale = parseFloat(document.getElementById('p1_scale').value);
+    const real  = parseFloat(document.getElementById('p1_real').value);
+    const unit  = parseFloat(document.getElementById('p1_unit').value);
+    if (!real) { alert('実物の寸法を入力してください'); return; }
+
+    const realMm  = real * unit;
+    const modelMm = realMm / scale;
+    const modelCm = (modelMm / 10).toFixed(1);
+
+    document.getElementById('p1_mm').textContent   = modelMm.toFixed(1);
+    document.getElementById('p1_cm').textContent   = modelCm;
+    document.getElementById('p1_note').textContent = `実物${real}${['mm','cm','m'][Math.log10(unit)]} → 模型では約${modelMm.toFixed(1)}mm（${modelCm}cm）`;
+    document.getElementById('p1_result').classList.add('show');
+  }
+
+  function calcGradient() {
+    const h = parseFloat(document.getElementById('p2_height').value);
+    const d = parseFloat(document.getElementById('p2_dist').value);
+    if (!h || !d) { alert('高低差と水平距離を入力してください'); return; }
+
+    const permil  = (h / d * 1000).toFixed(1);
+    const percent = (h / d * 100).toFixed(2);
+
+    document.getElementById('p2_permil').textContent  = permil;
+    document.getElementById('p2_percent').textContent = percent;
+
+    let tip = '';
+    if (permil <= 20)       tip = '💡 ゆるやかな勾配。ほとんどの車両で問題なく走行できます。';
+    else if (permil <= 35)  tip = '💡 適度な勾配。動力車が多い編成なら問題ありません。';
+    else if (permil <= 50)  tip = '⚠️ やや急な勾配。長編成は動力車の数に注意してください。';
+    else                     tip = '⛔ 急すぎる勾配。走行に支障が出る可能性があります。';
+
+    document.getElementById('p2_tip').textContent = tip;
+    document.getElementById('p2_result').classList.add('show');
+  }
+
+  document.getElementById('p3_car_type').addEventListener('change', function(){
+    document.getElementById('p3_custom_wrap').style.display = this.value==='custom' ? 'block' : 'none';
+  });
+
+  function calcFormation() {
+    const type = document.getElementById('p3_car_type').value;
+    const carLength = type === 'custom'
+      ? parseFloat(document.getElementById('p3_car_length').value)
+      : parseFloat(type);
+    const cars = parseFloat(document.getElementById('p3_cars').value);
+
+    if (!carLength || !cars) { alert('車両の長さと両数を入力してください'); return; }
+
+    const total    = Math.round(carLength * cars);
+    const platform = Math.round(total * 1.05);
+
+    document.getElementById('p3_total').textContent    = total;
+    document.getElementById('p3_platform').textContent = platform;
+    document.getElementById('p3_note').textContent     = `${cars}両編成の全長は${total}mm。ホームは余裕を持って${platform}mm以上が目安です。`;
+    document.getElementById('p3_result').classList.add('show');
+  }
+
+  function updateCurveInfo() {
+    const maker  = document.getElementById('p4_maker').value;
+    const sel    = document.getElementById('p4_curve');
+    sel.innerHTML = '<option value="">選んでください</option>';
+    CURVES[maker].forEach((c, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = c.name;
+      sel.appendChild(opt);
+    });
+    document.getElementById('p4_result').classList.remove('show');
+  }
+
+  function showCurveResult() {
+    const maker = document.getElementById('p4_maker').value;
+    const idx   = document.getElementById('p4_curve').value;
+    if (idx === '') return;
+    const curve = CURVES[maker][parseInt(idx)];
+    const realM = (curve.r * 150 / 1000).toFixed(1);
+
+    document.getElementById('p4_radius').textContent = curve.r;
+    document.getElementById('p4_real').textContent   = realM;
+    document.getElementById('p4_tip').textContent    = '💡 ' + curve.tip;
+    document.getElementById('p4_result').classList.add('show');
+  }
+
+  // 初期カーブデータ読み込み
+  updateCurveInfo();
+</script>
+</body>
+</html>
