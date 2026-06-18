@@ -351,6 +351,47 @@
       <li>編成長：車両数を変えるだけで全長とホーム長が出ます</li>
       <li>カーブ：メーカーと型番を選ぶだけで半径と実物換算が確認できます</li>
     </ul>
+
+    <h2 style="margin-top:18px;">📏 縮尺の比較表</h2>
+    <table style="width:100%; border-collapse:collapse; font-size:0.78rem; margin-bottom:8px;">
+      <thead>
+        <tr style="background:#f8fbff;">
+          <th style="text-align:left; padding:6px 8px; border:1px solid #b0c8e0; color:#1a3a5a;">ゲージ</th>
+          <th style="text-align:left; padding:6px 8px; border:1px solid #b0c8e0; color:#1a3a5a;">縮尺</th>
+          <th style="text-align:left; padding:6px 8px; border:1px solid #b0c8e0; color:#1a3a5a;">軌間</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:6px 8px; border:1px solid #e0e8f0;">Zゲージ</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">1/220</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">6.5mm</td></tr>
+        <tr><td style="padding:6px 8px; border:1px solid #e0e8f0;">Nゲージ</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">1/150</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">9mm</td></tr>
+        <tr><td style="padding:6px 8px; border:1px solid #e0e8f0;">Nゲージ（欧米型）</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">1/160</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">9mm</td></tr>
+        <tr><td style="padding:6px 8px; border:1px solid #e0e8f0;">HOゲージ</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">1/80</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">16.5mm</td></tr>
+        <tr><td style="padding:6px 8px; border:1px solid #e0e8f0;">HOゲージ（欧米型）</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">1/87</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">16.5mm</td></tr>
+        <tr><td style="padding:6px 8px; border:1px solid #e0e8f0;">Oゲージ</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">1/45</td><td style="padding:6px 8px; border:1px solid #e0e8f0;">32mm</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="margin-top:18px;">🧮 計算例で見るレイアウト設計</h2>
+    <p style="font-size:0.82rem; color:#555; line-height:1.7; margin-bottom:6px;">例えば、実物全長20m（20,000mm）の通勤電車をNゲージ（1/150）で10両編成にする場合：</p>
+    <ul>
+      <li>模型での1両の長さ：20,000 ÷ 150 ≒ <strong>133mm</strong>（市販車両は連結器を考慮して165mm前後で設計されることが多い）</li>
+      <li>10両編成の全長：165mm × 10 ＝ <strong>1,650mm</strong></li>
+      <li>必要なホーム長（余裕5%）：約<strong>1,730mm</strong></li>
+    </ul>
+    <p style="font-size:0.82rem; color:#555; line-height:1.7; margin-top:6px;">「縮尺換算」と「編成長」の2つのタブを組み合わせると、実物の編成からレイアウトに必要なスペースを逆算できます。</p>
+
+    <h2 style="margin-top:18px;">⚠️ よくある失敗と対処法</h2>
+    <ul>
+      <li><strong>勾配を急にしすぎて登れない</strong> → 動力車を増やすか、勾配を35‰以下に抑える</li>
+      <li><strong>カーブ半径が小さすぎて長編成が脱線する</strong> → 編成の中で最も長い車両がそのカーブ半径に対応しているか確認する</li>
+      <li><strong>ホーム長がギリギリで車両がはみ出る</strong> → 編成全長の5%程度の余裕を持たせる</li>
+    </ul>
+  </div>
+
+  <!-- このツールについて -->
+  <div class="howto">
+    <h2>🚂 このツールについて</h2>
+    <p style="font-size:0.82rem; color:#555; line-height:1.7;">レイアウトを作るたびに「このカーブで本当に通過できるのか」「ホームの長さは足りるか」を毎回手計算していた経験から、スマホでさっと確認できるツールを作りました。模型はメーカー・年代によって寸法に差があるので、ここでの数字は目安として、実際の手元の車両で確認しながらレイアウトを組んでください。</p>
   </div>
 
   <!-- よくある質問 -->
